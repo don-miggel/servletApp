@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 
 @WebFilter("/*")
 public class AuthenticationFilter implements Filter {
@@ -27,21 +28,23 @@ public class AuthenticationFilter implements Filter {
 
         String uri = req.getRequestURI();
 
-        this.context.log("Requested Resource::http://localhost:8080" + uri);
+        this.context.log("Requested Resource::http://localhost:8787" + uri);
 
         HttpSession session = req.getSession(false);
 
-        if (session == null && !(
-                uri.endsWith("demo/saveServlet") ||
-                        uri.endsWith("demo/viewByIDServlet") ||
-                        uri.endsWith("demo/loginServlet") ||
-                        uri.endsWith("demo/viewServlet"))) {
+        if (session == null && !validateUrl(uri)) {
             this.context.log("<<< Unauthorized access request");
             PrintWriter out = res.getWriter();
             out.println("No access!!!");
         } else {
             chain.doFilter(request, response);
         }
+    }
+
+    public boolean validateUrl(String uri){
+        List<String> allowedEndpoints= List.of("demo/saveServlet","demo/viewByIDServlet", "demo/loginServlet",
+                "demo/viewServlet");
+        return allowedEndpoints.stream().filter(endpoint->uri.endsWith(endpoint)).findFirst().isPresent();
     }
 
     public void destroy() {

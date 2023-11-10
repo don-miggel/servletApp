@@ -6,6 +6,9 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Servlet implementation class LoginServlet
@@ -21,10 +24,10 @@ public class LoginServlet extends HttpServlet {
         String user = request.getParameter("user");
         String pwd = request.getParameter("pwd");
         // Это значение наших параметров
-        String userID = "admin";
-        String password = "password";
+//        String userID = "admin";
+//        String password = "password";
 
-        if (userID.equals(user) && password.equals(pwd)) {
+        if (validateUser(user, pwd)) {
             HttpSession session = request.getSession();
             session.setAttribute("user", "user");
             //setting session to expiry in 30 mins
@@ -38,5 +41,23 @@ public class LoginServlet extends HttpServlet {
             PrintWriter out = response.getWriter();
             out.println("Either user name or password is wrong!");
         }
+    }
+
+    private static Map<String, String> initializeUsers(){
+        Map<String, String> credentials = new HashMap<>();
+        credentials.put("pete", "pete23");
+        credentials.put("sara", "sara23");
+        credentials.put("toni", "toni12");
+        credentials.put("terry", "terry12");
+        credentials.put("dan", "dan12");
+        return credentials;
+    }
+
+    private static boolean validateUser(String name, String password){
+
+        var userList = initializeUsers();
+        return userList.keySet().stream()
+                .filter(usrName->usrName.equals(name)).findFirst()
+                .filter(usrName -> userList.get(usrName).equals(password)).isPresent();
     }
 }
